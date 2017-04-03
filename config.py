@@ -66,7 +66,7 @@ USERDB = {
 # This is a JSON Web Key (JWK) object, and its members represent
 # properties of the key and its values.
 keys = [
-    {"type": "RSA", "key": "cp_keys/key.pem", "use": ["enc", "sig"]},
+    {"type": "RSA", "key": "cryptography_keys/key.pem", "use": ["enc", "sig"]},
     {"type": "EC", "crv": "P-256", "use": ["sig"]},
     {"type": "EC", "crv": "P-256", "use": ["enc"]}
 
@@ -75,6 +75,9 @@ keys = [
     # in the IANA "JSON Web Key Types" registery or be a value that contains a
     # Collision-Resistant Name. For more info on kty values refer to:
     # https://tools.ietf.org/html/rfc7518
+    #
+    # Cryptography keys are: private and public keys.
+    # Keys are encrypted with RSA algorithm, and are stored in separate files in RSA.
     #
     # use (Public Key Use) parameter identifies the intended use of the public key.
     # This parameter is employed to indicate whether a public key is used for encryption
