@@ -373,10 +373,10 @@ if __name__ == '__main__':
         None,                               # server instance
         "login.mako",                       # a mako template
         lookup,                             # lookup template
-        usernamePasswords,                             # username/password dictionary-like database
+        usernamePasswords,                  # username/password dictionary-like database
         "%sauthorization" % config.ISSUER,  # where to send the user after authentication
         None,                               # templ_arg_func ??!!
-        fullEndPointsPath)               # verification endpoints
+        fullEndPointsPath)                  # verification endpoints
 
     # AuthnIndexedEndpointWrapper is a wrapper class for using an authentication module with multiple endpoints.
     authnIndexedEndPointWrapper = AuthnIndexedEndpointWrapper(usernamePasswordAuthn, passwordEndPointIndex)
@@ -404,9 +404,9 @@ if __name__ == '__main__':
 
     provider = Provider(
         config.ISSUER,             # name
-        SessionDB(config.ISSUER),  # session database
-        clientDB,                       # client database
-        authnBroker,                        # authn broker
+        SessionDB(config.ISSUER),  # session database.
+        clientDB,                  # client database
+        authnBroker,               # authn broker
         None,                      # (?!!) authz  -- Q: are you sure this parameter is set correctly ?
         authz,                     # Client authn -- Q: are you sure this parameter is set correctly ?
         verify_client,             # (?!!) symkey -- Q: are you this parameter is set correctly?
@@ -421,6 +421,13 @@ if __name__ == '__main__':
         # client_cert = None
         **kwargs)
 
+    # SessionDB:
+    # This is database where the provider keeps information about
+    # the authenticated/authorised users. It includes information
+    # such as "what has been asked for (claims, scopes, and etc. )"
+    # and "the state of the session". There is one entry in the
+    # database per person
+    #
     # __________ Note __________
     # provider.keyjar is an interesting parameter,
     # currently it uses default values, but
