@@ -1,8 +1,8 @@
 PORT = 8040
 ISSUER = 'https://localhost'  # do not include the port, it will be added in the code.
 SERVICEURL = "{issuer}verify"  # do not manually add issuer or port number, these will be added in the code.
-SERVER_CERT = "certs/server.crt"
-SERVER_KEY = "certs/server.key"
+SERVER_CERT = "certification/server.crt"
+SERVER_KEY = "certification/server.key"
 CERT_CHAIN = None
 
 AUTHENTICATION = {
@@ -11,12 +11,12 @@ AUTHENTICATION = {
             "ACR": "PASSWORD",
             "WEIGHT": 1,
             "URL": SERVICEURL,
-            "END_POINTS": ["verify"],
+            "EndPoints": ["verify"],
         }
 }
 
 CLIENTDB = 'ClientDB'
-SYM_KEY = "SoLittleTime,Got"
+SYM_KEY = "SoLittleTime,Got"  # TODO: what does SYM stand-for?
 COOKIENAME = 'pyoic'
 COOKIETTL = 4 * 60  # 4 hours
 

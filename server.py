@@ -328,10 +328,6 @@ if __name__ == '__main__':
     lookup = TemplateLookup(directories=[root + 'Templates', root + 'htdocs'],
                             module_directory=root + 'modules',
                             input_encoding='utf-8', output_encoding='utf-8')
-    kwargs = {
-        "template_lookup": lookup,
-        "template": {"form_post": "form_response.mako"}
-    }
 
     usernamePasswords = {
         "user1": "1",
@@ -353,7 +349,7 @@ if __name__ == '__main__':
     config = importlib.import_module(args.config)
     config.ISSUER = config.ISSUER + ':{}/'.format(config.PORT)
     config.SERVICEURL = config.SERVICEURL.format(issuer=config.ISSUER)
-    endPoints = config.AUTHENTICATION["UserPassword"]["END_POINTS"]
+    endPoints = config.AUTHENTICATION["UserPassword"]["EndPoints"]
     fullEndPointsPath = ["%s%s" % (config.ISSUER, ep) for ep in endPoints]
 
 # TODO: why this instantiation happens so early? can I move it later?
@@ -362,8 +358,8 @@ if __name__ == '__main__':
     # And that is what the AuthBroker is for.
     # Given information about the authorisation request, the AuthBroker
     # chooses which method(s) to be used for authenticating the person/entity.
-    # According to the OIDC standard the Relaying Party can say
-    # 'I want this type of authentication'. The AuthnBroker tries to pick
+    # According to the OIDC standard a Relaying Party can say
+    # 'I want this type of authentication', and the AuthnBroker tries to pick
     # methods from the set it has been supplied, to map that request.
     authnBroker = AuthnBroker()
 
@@ -388,27 +384,32 @@ if __name__ == '__main__':
 
     # ?!
     authz = AuthzHandling()
-    clientDB = shelve_wrapper.open("client_db")
+    clientDB = shelve_wrapper.open("ClientDB")
     clientDB = shelve_wrapper.open(config.CLIENTDB)
 
     provider = Provider(
-        config.ISSUER,             # name
-        SessionDB(config.ISSUER),  # session database.
-        clientDB,                  # client database
-        authnBroker,               # authn broker
-        None,                      # (?!!) authz  -- Q: are you sure this parameter is set correctly ?
-        authz,                     # Client authn -- Q: are you sure this parameter is set correctly ?
-        verify_client,             # (?!!) symkey -- Q: are you this parameter is set correctly?
-        config.SYM_KEY,            # (?!!) this should be urlmap
-        # iv = 0,
-        # default_scope = "",
-        # ca_bundle = None,
-        # verify_ssl = True
-        # default_acr = "",
+        name=config.ISSUER,                            # name
+        sdb=SessionDB(config.ISSUER),                  # session database.
+        cdb=clientDB,                                  # client database
+        authn_broker=authnBroker,                      # authn broker
+        userinfo=None,                                 # user information
+        authz=authz,                                   # authz
+        client_authn=verify_client,                    # client authentication
+        symkey=config.SYM_KEY,                         # SYM key
+        # urlmap = None,                               # ?
+        # ca_certs = "",                               # ?
+        # keyjar = None,                               # ?
+        # hostname = "",                               # ?
+        template_lookup=lookup,                        # ?
+        template={"form_post": "form_response.mako"},  # ?
+        # verify_ssl = True,                           # ?
+        # capabilities = None,                         # ?
+        # schema = OpenIDSchema,                       # ?
+        # jwks_uri = '',                               # ?
+        # jwks_name = '',                              # ?
         baseurl=config.ISSUER,
-        # server_cls = Server,
-        # client_cert = None
-        **kwargs)
+        # client_cert = None                           # ?
+        )
 
     # SessionDB:
     # This is database where the provider keeps information about
@@ -425,7 +426,7 @@ if __name__ == '__main__':
     for authnIndexedEndPointWrapper in authnBroker:
         authnIndexedEndPointWrapper.srv = provider
 
-#TODO: this is a point to consider: what if user data in a database?
+    # TODO: this is a point to consider: what if user data in a database?
     if config.USERINFO == "SIMPLE":
         provider.userinfo = UserInfo(config.USERDB)
 
@@ -444,7 +445,7 @@ if __name__ == '__main__':
         # keyjar_init configures cryptographic key
         # based on the provided configuration "keys".
         jwks = keyjar_init(
-            provider,                  # server/client instance
+            provider,             # server/client instance
             config.keys,          # key configuration
             kid_template="op%d")  # template by which to build the kids (key ID parameter)
     except Exception as err:
@@ -468,7 +469,7 @@ if __name__ == '__main__':
     # why not defining it as string with "verify" value?
     # after all, we have only one end point.
     # can we have multiple end points for password? why?
-    endPoint = config.AUTHENTICATION["UserPassword"]["END_POINTS"][passwordEndPointIndex]
+    endPoint = config.AUTHENTICATION["UserPassword"]["EndPoints"][passwordEndPointIndex]
     # what are these URLs ?
     _urls = []
     _urls.append((r'^' + endPoint, make_auth_verify(authnIndexedEndPointWrapper.verify)))
@@ -476,14 +477,14 @@ if __name__ == '__main__':
     _app = Application(provider, _urls)
 
     # Setup the web server
-    SRV = wsgiserver.CherryPyWSGIServer(('0.0.0.0', config.PORT), _app.application)
-    SRV.ssl_adapter = BuiltinSSLAdapter(config.SERVER_CERT, config.SERVER_KEY)
+    server = wsgiserver.CherryPyWSGIServer(('0.0.0.0', config.PORT), _app.application)
+    server.ssl_adapter = BuiltinSSLAdapter(config.SERVER_CERT, config.SERVER_KEY)
 
     # LOGGER.info("OC server started (iss={}, port={})".format(config.ISSUER, args.port))
 
-    print "OC server started (iss={}, port={})".format(config.ISSUER, config.PORT)
+    print "OIDC Provider server started (issuer={}, port={})".format(config.ISSUER, config.PORT)
 
     try:
-        SRV.start()
+        server.start()
     except KeyboardInterrupt:
-        SRV.stop()
+        server.stop()
