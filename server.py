@@ -101,7 +101,7 @@ def key_rollover(self, environ, start_response, _):
     # expects a post containing the necessary information
     _txt = get_post(environ)
     _jwks = json.loads(_txt)
-    #logger.info("Key rollover to")
+    # logger.info("Key rollover to")
     provider.do_key_rollover(_jwks, "key_%d_%%d" % int(time.time()))
     # Dump to file
     f = open(jwksFileName, "w")
@@ -306,7 +306,7 @@ class Application(object):
                 except IndexError:
                     environ['oic.url_args'] = path
 
-                #logger.info("callback: %s" % callback)
+                # logger.info("callback: %s" % callback)
                 try:
                     return callback(environ, start_response)
                 except Exception as err:
@@ -380,17 +380,6 @@ if __name__ == '__main__':
 
     # AuthnIndexedEndpointWrapper is a wrapper class for using an authentication module with multiple endpoints.
     authnIndexedEndPointWrapper = AuthnIndexedEndpointWrapper(usernamePasswordAuthn, passwordEndPointIndex)
-
-# TODO: end_point is used in _urls only, and _urls are used toward the end of this code,
-# TODO: so it is possible to push these to closet usage point?
-    # END_POINT is defined as a dictionary in the configuration file,
-    # why not defining it as string with "verify" value?
-    # after all, we have only one end point.
-    # can we have multiple end points for password? why?
-    endPoint = config.AUTHENTICATION["UserPassword"]["END_POINTS"][passwordEndPointIndex]
-    # what are these URLs ?
-    _urls = []
-    _urls.append((r'^' + endPoint, make_auth_verify(authnIndexedEndPointWrapper.verify)))
 
     authnBroker.add(config.AUTHENTICATION["UserPassword"]["ACR"],  # (?!)
            authnIndexedEndPointWrapper,                      # (?!) method: an identifier of the authentication method.
@@ -473,6 +462,16 @@ if __name__ == '__main__':
 
     # for b in OAS.keyjar[""]:
     #    LOGGER.info("OC3 server keys: %s" % b)
+
+    # TODO: Questions:
+    # END_POINT is defined as a dictionary in the configuration file,
+    # why not defining it as string with "verify" value?
+    # after all, we have only one end point.
+    # can we have multiple end points for password? why?
+    endPoint = config.AUTHENTICATION["UserPassword"]["END_POINTS"][passwordEndPointIndex]
+    # what are these URLs ?
+    _urls = []
+    _urls.append((r'^' + endPoint, make_auth_verify(authnIndexedEndPointWrapper.verify)))
 
     _app = Application(provider, _urls)
 
