@@ -20,12 +20,6 @@ SYM_KEY = "SoLittleTime,Got"  # TODO: what does SYM stand-for?
 COOKIENAME = 'pyoic'
 COOKIETTL = 4 * 60  # 4 hours
 
-
-
-
-
-
-
 USERINFO = "SIMPLE"
 
 USERDB = {

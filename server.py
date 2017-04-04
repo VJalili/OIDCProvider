@@ -22,19 +22,14 @@ from oic.utils import shelve_wrapper
 from oic.utils.authn.authn_context import AuthnBroker
 from oic.utils.authn.authn_context import make_auth_verify
 from oic.utils.authn.client import verify_client
-from oic.utils.authn.javascript_login import JavascriptFormMako
 from oic.utils.authn.multi_auth import AuthnIndexedEndpointWrapper
-from oic.utils.authn.multi_auth import setup_multi_auth
-from oic.utils.authn.saml import SAMLAuthnMethod
 from oic.utils.authn.user import UsernamePasswordMako
 from oic.utils.authz import AuthzHandling
 from oic.utils.http_util import *
 from oic.utils.keyio import keyjar_init
 from oic.utils.userinfo import UserInfo
-from oic.utils.userinfo.aa_info import AaUserInfo
 from oic.utils.webfinger import OIC_ISSUER
 from oic.utils.webfinger import WebFinger
-from oic.utils.sdb import SessionDB
 
 
 from cherrypy import wsgiserver
