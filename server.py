@@ -113,8 +113,8 @@ def clear_keys(self, environ, start_response, _):
 
 
 class Application(object):
-    def __init__(self, oas, urls):
-        self.oas = oas
+    def __init__(self, provider, urls):
+        self.provider = provider
 
         self.endpoints = [
             AuthorizationEndpoint(self.authorization),
@@ -124,7 +124,7 @@ class Application(object):
             EndSessionEndpoint(self.endsession),
         ]
 
-        self.oas.endpoints = self.endpoints
+        self.provider.endpoints = self.endpoints
         self.urls = urls
         self.urls.extend([
             (r'^.well-known/openid-configuration', self.op_info),
@@ -148,8 +148,8 @@ class Application(object):
 
     # noinspection PyUnusedLocal
     def safe(self, environ, start_response):
-        _srv = self.oas.server
-        _log_info = self.oas.logger.info
+        _srv = self.provider.server
+        _log_info = self.provider.logger.info
 
         _log_info("- safe -")
         # _log_info("env: %s" % environ)
@@ -185,57 +185,57 @@ class Application(object):
 
     # noinspection PyUnusedLocal
     def token(self, environ, start_response):
-        return wsgi_wrapper(environ, start_response, self.oas.token_endpoint,
+        return wsgi_wrapper(environ, start_response, self.provider.token_endpoint,
                             logger=logger)
 
     # noinspection PyUnusedLocal
     def authorization(self, environ, start_response):
         return wsgi_wrapper(environ, start_response,
-                            self.oas.authorization_endpoint, logger=logger)  # cookies required.
+                            self.provider.authorization_endpoint, logger=logger)  # cookies required.
 
     # noinspection PyUnusedLocal
     def userinfo(self, environ, start_response):
         print '\n in userinfo'
-        return wsgi_wrapper(environ, start_response, self.oas.userinfo_endpoint,
+        return wsgi_wrapper(environ, start_response, self.provider.userinfo_endpoint,
                             logger=logger)
 
     # noinspection PyUnusedLocal
     def op_info(self, environ, start_response):
         return wsgi_wrapper(environ, start_response,
-                            self.oas.providerinfo_endpoint, logger=logger)
+                            self.provider.providerinfo_endpoint, logger=logger)
 
     # noinspection PyUnusedLocal
     def registration(self, environ, start_response):
         if environ["REQUEST_METHOD"] == "POST":
             return wsgi_wrapper(environ, start_response,
-                                self.oas.registration_endpoint,
+                                self.provider.registration_endpoint,
                                 logger=logger)
         elif environ["REQUEST_METHOD"] == "GET":
             return wsgi_wrapper(environ, start_response,
-                                self.oas.read_registration, logger=logger)
+                                self.provider.read_registration, logger=logger)
         else:
             resp = ServiceError("Method not supported")
             return resp(environ, start_response)
 
     # noinspection PyUnusedLocal
     def check_id(self, environ, start_response):
-        return wsgi_wrapper(environ, start_response, self.oas.check_id_endpoint,
+        return wsgi_wrapper(environ, start_response, self.provider.check_id_endpoint,
                             logger=logger)
 
     # noinspection PyUnusedLocal
     def swd_info(self, environ, start_response):
-        return wsgi_wrapper(environ, start_response, self.oas.discovery_endpoint,
+        return wsgi_wrapper(environ, start_response, self.provider.discovery_endpoint,
                             logger=logger)
 
     # noinspection PyUnusedLocal
     def trace_log(self, environ, start_response):
-        return wsgi_wrapper(environ, start_response, self.oas.tracelog_endpoint,
+        return wsgi_wrapper(environ, start_response, self.provider.tracelog_endpoint,
                             logger=logger)
 
     # noinspection PyUnusedLocal
     def endsession(self, environ, start_response):
         return wsgi_wrapper(environ, start_response,
-                            self.oas.endsession_endpoint, logger=logger)
+                            self.provider.endsession_endpoint, logger=logger)
 
     # noinspection PyUnusedLocal
     def meta_info(self, environ, start_response):
@@ -263,7 +263,7 @@ class Application(object):
         else:
             wf = WebFinger()
             resp = Response(wf.response(subject=resource,
-                                        base=self.oas.baseurl))
+                                        base=self.provider.baseurl))
         return resp(environ, start_response)
 
     def application(self, environ, start_response):
@@ -286,7 +286,7 @@ class Application(object):
         if path == "robots.txt":
             return static(self, environ, start_response, "static/robots.txt")
 
-        environ["oic.oas"] = self.oas
+        environ["oic.oas"] = self.provider
 
         # logger.info('PATH: "{}"'.format(path))
 
