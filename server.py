@@ -390,7 +390,7 @@ if __name__ == '__main__':
         userinfo=None,                                 # user information
         authz=authz,                                   # authz
         client_authn=verify_client,                    # client authentication
-        symkey=config.SYM_KEY,                         # SYM key
+        # symkey = "",                                 # Used for Symmetric key authentication
         # urlmap = None,                               # ?
         # ca_certs = "",                               # ?
         # keyjar = None,                               # ?
