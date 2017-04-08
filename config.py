@@ -16,7 +16,7 @@ AUTHENTICATION = {
 }
 
 CLIENTDB = 'ClientDB'
-# SYM_KEY = "SoLittleTime,Got" used for Symmetric key authentication only.
+SYM_KEY = "SoLittleTime,Got" # used for Symmetric key authentication only.
 COOKIENAME = 'pyoic'
 COOKIETTL = 4 * 60  # 4 hours
 

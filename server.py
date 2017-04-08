@@ -140,10 +140,7 @@ class Application(object):
             #    (r'tracelog', trace_log),
         ])
 
-        self.add_endpoints(self.endpoints)
-
-    def add_endpoints(self, extra):
-        for endp in extra:
+        for endp in self.endpoints:
             self.urls.append(("^%s" % endp.etype, endp.func))
 
     # noinspection PyUnusedLocal
@@ -195,7 +192,6 @@ class Application(object):
 
     # noinspection PyUnusedLocal
     def userinfo(self, environ, start_response):
-        print '\n in userinfo'
         return wsgi_wrapper(environ, start_response, self.provider.userinfo_endpoint,
                             logger=logger)
 
@@ -379,7 +375,6 @@ if __name__ == '__main__':
 
     # ?!
     authz = AuthzHandling()
-    clientDB = shelve_wrapper.open("ClientDB")
     clientDB = shelve_wrapper.open(config.CLIENTDB)
 
     provider = Provider(
@@ -390,7 +385,7 @@ if __name__ == '__main__':
         userinfo=None,                                 # user information
         authz=authz,                                   # authz
         client_authn=verify_client,                    # client authentication
-        # symkey = "",                                 # Used for Symmetric key authentication
+        symkey=config.SYM_KEY,                         # Used for Symmetric key authentication
         # urlmap = None,                               # ?
         # ca_certs = "",                               # ?
         # keyjar = None,                               # ?
@@ -465,7 +460,7 @@ if __name__ == '__main__':
     # after all, we have only one end point.
     # can we have multiple end points for password? why?
     endPoint = config.AUTHENTICATION["UserPassword"]["EndPoints"][passwordEndPointIndex]
-    # what are these URLs ?
+
     _urls = []
     _urls.append((r'^' + endPoint, make_auth_verify(authnIndexedEndPointWrapper.verify)))
 
